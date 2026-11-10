@@ -28,12 +28,17 @@ const members = async (doc) => {
     return { count: info?.members || 0, source: 'gdg' };
 };
 
+const links = (doc) => (doc.importantLinks || [])
+    .filter((link) => link.title && link.url)
+    .sort((a, b) => a.order - b.order)
+    .map((link) => ({ _id: String(link._id), title: link.title, url: link.url, description: link.description || '' }));
+
 // Public: only links that have a URL.
 exports.publicSettings = async (req, res) => {
     try {
         const doc = await load();
         const m = await members(doc);
-        res.status(200).json({ success: true, socials: resolve(doc).filter((s) => s.url).map(({ key, label, icon, url }) => ({ key, label, icon, url })), members: m.count });
+        res.status(200).json({ success: true, socials: resolve(doc).filter((s) => s.url).map(({ key, label, icon, url }) => ({ key, label, icon, url })), links: links(doc), members: m.count });
     } catch (e) { serverError(res, e); }
 };
 
@@ -42,7 +47,7 @@ exports.adminSettings = async (req, res) => {
     try {
         const doc = await load();
         const live = (await getChapterInfo())?.members || 0;
-        res.status(200).json({ success: true, socials: resolve(doc), members: { override: doc.membersOverride, live } });
+        res.status(200).json({ success: true, socials: resolve(doc), links: links(doc), members: { override: doc.membersOverride, live } });
     } catch (e) { serverError(res, e); }
 };
 
@@ -70,6 +75,20 @@ exports.saveSettings = async (req, res) => {
             const v = req.body.membersOverride;
             doc.membersOverride = v === '' || v === null ? null : Math.max(0, Math.round(Number(v)));
             if (Number.isNaN(doc.membersOverride)) return res.status(400).json({ success: false, msg: 'Members must be a number!' });
+        }
+        if (Array.isArray(req.body.links)) {
+            const next = [];
+            for (const [index, raw] of req.body.links.entries()) {
+                const title = String(raw?.title || '').trim().slice(0, 80);
+                const description = String(raw?.description || '').trim().slice(0, 160);
+                const value = String(raw?.url || '').trim();
+                if (!title && !value && !description) continue;
+                if (!title || !value) return res.status(400).json({ success: false, msg: 'Every important link needs a title and URL.' });
+                const url = cleanUrl(value);
+                if (!url || /^mailto:/i.test(url)) return res.status(400).json({ success: false, msg: `Important link ${index + 1}: add a valid web URL.` });
+                next.push({ title, url, description, order: index });
+            }
+            doc.importantLinks = next;
         }
         await doc.save();
         res.status(200).json({ success: true, msg: 'Settings saved!' });

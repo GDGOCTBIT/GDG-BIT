@@ -22,7 +22,7 @@ export default function Footer () {
         <div>
           <p className='mono text-xs text-[#b5b5b5] mb-3'>Explore</p>
           <ul className='flex flex-col gap-2'>
-            {[{ id: 'h', name: 'Home', link: '/' }, ...navData].map(n => (
+            {[{ id: 'h', name: 'Home', link: '/' }, ...navData, { id: 'links', name: 'All links', link: '/links' }].map(n => (
               <li key={n.id}><Link to={n.link} className='hover:underline underline-offset-4'>{n.name}</Link></li>
             ))}
           </ul>

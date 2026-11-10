@@ -12,6 +12,7 @@ const Team = lazy(() => import('./pages/Team'))
 const Member = lazy(() => import('./pages/Member'))
 const Gallery = lazy(() => import('./pages/Gallery'))
 const Projects = lazy(() => import('./pages/Projects'))
+const Links = lazy(() => import('./pages/Links'))
 const Profile = lazy(() => import('./pages/Profile'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 const VerifyCertificate = lazy(() => import('./pages/Certificate/VerifyCertificate'))
@@ -61,6 +62,7 @@ function App () {
         <Route path='/members' element={<Navigate to='/' replace />} />
         <Route path='/members/:id' element={<Member />} />
         <Route path='/projects' element={<Projects />} />
+        <Route path='/links' element={<Links />} />
         <Route path='/profile' element={<Profile />} />
         <Route path='/admin' element={<Admin />} />
         <Route path='/events/pokeprompt' element={<Redirect route='game' />} />

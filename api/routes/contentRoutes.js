@@ -9,7 +9,7 @@ const router = express.Router();
 
 // Public lists change rarely: let the CDN keep them for 30s and serve a stale copy while it refreshes.
 // Admin screens add ?fresh=1 to skip this, and the image endpoints set their own (immutable) headers.
-router.use(["/events", "/team", "/projects", "/gallery", "/settings", "/members"], (req, res, next) => {
+router.use(["/events", "/team", "/projects", "/gallery", "/settings", "/links", "/members"], (req, res, next) => {
     if (req.method === "GET" && !req.query.fresh && !req.headers.login_token) {
         // Member pages are personal: keep them fresh so "make my profile private" takes effect within seconds.
         res.set("Cache-Control", /\/members\/?$/.test(req.baseUrl)
@@ -26,6 +26,7 @@ router.get("/team", listTeam);
 router.get("/projects", listProjects);
 router.get("/cert-templates/:id/image", templateImage);
 router.get("/settings", settings.publicSettings);
+router.get("/links", settings.publicSettings);
 router.get("/gallery", gallery.list);
 router.get("/members/:id", members.get);
 router.get("/gallery/:id/image", gallery.image);
