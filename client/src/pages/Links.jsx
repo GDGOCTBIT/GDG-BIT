@@ -89,15 +89,15 @@ export default function Links () {
 
       {selected && (
         <div role='dialog' aria-modal='true' aria-labelledby='link-title' className='fixed inset-0 z-[60] bg-black/70 p-4 flex items-center justify-center' onClick={() => setSelected(null)}>
-          <section className='card relative w-full max-w-4xl shadow-[6px_6px_0_var(--outline)] max-h-[90vh] overflow-y-auto md:overflow-hidden md:grid md:grid-cols-2' onClick={event => event.stopPropagation()}>
-            <button type='button' onClick={() => setSelected(null)} className='btn btn-ghost btn-icon btn-sm absolute top-3 right-3 z-10 bg-[var(--surface)]' aria-label='Close link details'><LuX size={18} /></button>
-            <div className='relative aspect-[16/9] md:aspect-auto md:min-h-[24rem] bg-[var(--sunken)]'>
-              <LinkThumb link={selected} className='md:absolute md:inset-0' />
+          <section className='card relative w-full max-w-4xl shadow-[6px_6px_0_var(--outline)] max-h-[92vh] overflow-y-auto' onClick={event => event.stopPropagation()}>
+            <button type='button' onClick={() => setSelected(null)} className='btn btn-ghost btn-icon btn-sm absolute top-4 right-4 z-10 bg-[var(--surface)]' aria-label='Close link details'><LuX size={18} /></button>
+            <div className='relative w-full aspect-[16/9] bg-[var(--sunken)]'>
+              <LinkThumb link={selected} />
             </div>
-            <div className='p-5 sm:p-7 flex flex-col'>
+            <div className='p-6 sm:p-8'>
               <p className='eyebrow mb-2 truncate'>{selected.category || linkHost(selected.url) || 'Featured link'}</p>
               <h2 id='link-title' className='title-2'>{selected.title}</h2>
-              <p className='text-[var(--muted)] mt-3 leading-relaxed flex-1'>{selected.description || 'Open this featured GDG on Campus BIT link.'}</p>
+              <p className='text-[var(--muted)] mt-3 leading-relaxed'>{selected.description || 'Open this featured GDG on Campus BIT link.'}</p>
               <div className='flex flex-wrap gap-3 mt-6'>
                 <a href={safeHref(selected.url)} target='_blank' rel='noreferrer' className='btn btn-ink'>Visit link <LuArrowUpRight size={18} /></a>
                 <button type='button' onClick={() => setSelected(null)} className='btn btn-ghost'>Close</button>
