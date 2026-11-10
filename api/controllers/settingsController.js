@@ -1,6 +1,7 @@
 const Settings = require('../models/settingsModel.js');
 const { getChapterInfo } = require('../services/gdgCommunity.js');
-const { serverError } = require('../utils/crudFactory.js');
+const { resolvePreview } = require('../services/linkPreview.js');
+const { serverError, uploadImage } = require('../utils/crudFactory.js');
 
 // The platforms the admin can edit. `icon` points at files in client/public.
 const PLATFORMS = [
@@ -31,7 +32,10 @@ const members = async (doc) => {
 const links = (doc) => (doc.importantLinks || [])
     .filter((link) => link.title && link.url)
     .sort((a, b) => a.order - b.order)
-    .map((link) => ({ _id: String(link._id), title: link.title, url: link.url, description: link.description || '', image: link.image || '' }));
+    .map((link) => ({
+        _id: String(link._id), title: link.title, url: link.url, category: link.category || '',
+        description: link.description || '', image: link.image || '',
+    }));
 
 // Public: only links that have a URL.
 exports.publicSettings = async (req, res) => {
@@ -80,6 +84,7 @@ exports.saveSettings = async (req, res) => {
             const next = [];
             for (const [index, raw] of req.body.links.entries()) {
                 const title = String(raw?.title || '').trim().slice(0, 80);
+                const category = String(raw?.category || '').trim().slice(0, 40);
                 const description = String(raw?.description || '').trim().slice(0, 160);
                 const value = String(raw?.url || '').trim();
                 const imageValue = String(raw?.image || '').trim();
@@ -89,11 +94,45 @@ exports.saveSettings = async (req, res) => {
                 if (!url || /^mailto:/i.test(url)) return res.status(400).json({ success: false, msg: `Important link ${index + 1}: add a valid web URL.` });
                 const image = imageValue ? cleanUrl(imageValue) : '';
                 if (image === null || /^mailto:/i.test(image)) return res.status(400).json({ success: false, msg: `Important link ${index + 1}: add a valid image URL.` });
-                next.push({ title, url, description, image, order: index });
+                next.push({ title, category, url, description, image, order: index });
             }
+            // Every card should show something: fill in a preview from the page itself when the admin
+            // did not upload or paste one. Failures stay empty and the public page draws a fallback card.
+            const pending = next.filter((link) => !link.image).slice(0, 12);
+            await Promise.all(pending.map(async (link) => {
+                const preview = await resolvePreview(link.url).catch(() => null);
+                if (preview?.image && preview.image.length <= 1000) link.image = preview.image;
+            }));
             doc.importantLinks = next;
         }
         await doc.save();
         res.status(200).json({ success: true, msg: 'Settings saved!' });
+    } catch (e) { serverError(res, e); }
+};
+
+// Admin: look up the preview metadata for one link. Used by "fetch preview" and when a URL is pasted.
+exports.linkPreview = async (req, res) => {
+    try {
+        const url = cleanUrl(req.body?.url);
+        if (!url || /^mailto:/i.test(url)) {
+            return res.status(400).json({ success: false, msg: 'Add a valid web URL first!' });
+        }
+        const preview = await resolvePreview(url);
+        if (!preview) {
+            return res.status(200).json({ success: false, msg: 'Could not read that page — upload a preview image instead.' });
+        }
+        res.status(200).json({ success: true, preview });
+    } catch (e) { serverError(res, e); }
+};
+
+// Admin: store an uploaded preview image for a link card.
+exports.uploadLinkImage = async (req, res) => {
+    try {
+        if (!req.file) return res.status(400).json({ success: false, msg: 'Choose an image first!' });
+        if (!/^image\/(jpeg|png|webp|gif|avif)$/i.test(req.file.mimetype)) {
+            return res.status(400).json({ success: false, msg: 'Use a JPG, PNG, WebP, GIF or AVIF image!' });
+        }
+        const image = await uploadImage(req.file, 'BIT/Links');
+        res.status(200).json({ success: true, msg: 'Preview image uploaded!', url: image.url });
     } catch (e) { serverError(res, e); }
 };

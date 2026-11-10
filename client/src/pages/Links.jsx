@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
-import { LuArrowUpRight, LuLink, LuX } from 'react-icons/lu'
+import { LuArrowUpRight, LuEllipsis, LuExternalLink, LuX } from 'react-icons/lu'
 import SocialIcon from '../components/SocialIcon'
+import LinkThumb from '../components/LinkThumb'
+import { linkHost } from '../utils/links'
 import useSettings from '../utils/useSettings'
 import useTitle from '../utils/useTitle'
 
@@ -47,21 +49,33 @@ export default function Links () {
           <section aria-labelledby='featured-title'>
             <div className='flex items-end justify-between gap-4 mb-4'>
               <div><p className='eyebrow mb-1'>Explore more</p><h2 id='featured-title' className='title-2'>Featured links</h2></div>
-              <p className='text-sm text-[var(--muted)] hidden sm:block'>Tap a card to learn more</p>
+              <p className='text-sm text-[var(--muted)] hidden sm:block'>Tap a card for details</p>
             </div>
-            <div className='grid sm:grid-cols-2 lg:grid-cols-3 gap-4'>
+            <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
               {links.map(link => (
-                <button key={link._id || `${link.title}-${link.url}`} type='button' onClick={() => setSelected(link)} className='card lift text-left overflow-hidden group'>
-                  <div className='aspect-[16/9] bg-[var(--sunken)] border-b-2 border-[var(--outline)]'>
-                    {link.image ? <img src={link.image} alt='' className='w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]' /> : <div className='w-full h-full flex items-center justify-center bg-[var(--yellow-pa)]'><LuLink size={32} aria-hidden='true' /></div>}
-                  </div>
-                  <div className='p-4 flex gap-3 items-start'>
-                    <span className='min-w-0 flex-1'>
-                      <span className='font-medium block truncate'>{link.title}</span>
-                      <span className='text-sm text-[var(--muted)] line-clamp-2 mt-1 min-h-10'>{link.description || 'Open this featured GDG on Campus BIT link.'}</span>
+                <button
+                  key={link._id || `${link.title}-${link.url}`}
+                  type='button'
+                  onClick={() => setSelected(link)}
+                  className='card lift text-left group flex flex-col'
+                >
+                  <span className='block p-2.5 pb-0'>
+                    <span className='block aspect-[16/9] overflow-hidden rounded-[16px] border-2 border-[var(--outline)] bg-[var(--sunken)]'>
+                      <LinkThumb link={link} className='transition-transform duration-300 group-hover:scale-[1.04]' />
                     </span>
-                    <LuArrowUpRight size={19} className='shrink-0 mt-0.5' aria-hidden='true' />
-                  </div>
+                  </span>
+                  <span className='flex items-start gap-2 p-4 pt-3 min-w-0'>
+                    <span className='min-w-0 flex-1'>
+                      <span className='flex items-center gap-1.5 font-medium'>
+                        <span className='truncate'>{link.title}</span>
+                        <LuExternalLink size={14} className='shrink-0 opacity-60' aria-hidden='true' />
+                      </span>
+                      <span className='block text-xs text-[var(--muted)] mt-1 truncate'>{link.category || linkHost(link.url)}</span>
+                    </span>
+                    <span aria-hidden='true' className='w-8 h-8 shrink-0 rounded-[10px] border-2 border-[var(--outline)] flex items-center justify-center'>
+                      <LuEllipsis size={16} />
+                    </span>
+                  </span>
                 </button>
               ))}
             </div>
@@ -74,11 +88,11 @@ export default function Links () {
         <div role='dialog' aria-modal='true' aria-labelledby='link-title' className='fixed inset-0 z-[60] bg-black/70 p-4 flex items-center justify-center' onClick={() => setSelected(null)}>
           <section className='card w-full max-w-lg overflow-hidden shadow-[6px_6px_0_var(--outline)]' onClick={event => event.stopPropagation()}>
             <div className='aspect-[16/9] bg-[var(--sunken)] relative'>
-              {selected.image ? <img src={selected.image} alt='' className='w-full h-full object-cover' /> : <div className='w-full h-full flex items-center justify-center bg-[var(--yellow-pa)]'><LuLink size={42} aria-hidden='true' /></div>}
-              <button type='button' onClick={() => setSelected(null)} className='btn btn-ghost btn-icon btn-sm absolute top-3 right-3' aria-label='Close link details'><LuX size={18} /></button>
+              <LinkThumb link={selected} />
+              <button type='button' onClick={() => setSelected(null)} className='btn btn-ghost btn-icon btn-sm absolute top-3 right-3 bg-[var(--surface)]' aria-label='Close link details'><LuX size={18} /></button>
             </div>
             <div className='p-5 sm:p-6'>
-              <p className='eyebrow mb-2'>Featured link</p>
+              <p className='eyebrow mb-2 truncate'>{selected.category || linkHost(selected.url) || 'Featured link'}</p>
               <h2 id='link-title' className='title-2'>{selected.title}</h2>
               <p className='text-[var(--muted)] mt-3 leading-relaxed'>{selected.description || 'Open this featured GDG on Campus BIT link.'}</p>
               <div className='flex gap-3 mt-6'>

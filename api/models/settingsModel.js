@@ -10,8 +10,9 @@ const SettingsSchema = mongoose.Schema({
     importantLinks: [{
         title: { type: String, trim: true, maxlength: 80 },
         url: { type: String, trim: true, maxlength: 500 },
+        category: { type: String, trim: true, maxlength: 40 },
         description: { type: String, trim: true, maxlength: 160 },
-        image: { type: String, trim: true, maxlength: 500 },
+        image: { type: String, trim: true, maxlength: 1000 },
         order: { type: Number, default: 0 },
     }],
 });
