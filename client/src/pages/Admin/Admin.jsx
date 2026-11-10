@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../../store/useAuthStore'
-import { api, formatDate } from '../../utils/api'
 import { loadStats, savedStats } from '../../utils/adminPrefetch'
 import ResourceManager from './ResourceManager'
 import Certificates from './Certificates'
@@ -10,6 +9,7 @@ import AdminSettings from './AdminSettings'
 import AdminAdmins from './AdminAdmins'
 import AdminTeam from './AdminTeam'
 import AdminMembers from './AdminMembers'
+import AdminLinks from './AdminLinks'
 
 const thumb = i =>
   <img src={i.image?.url || '/user.svg'} alt='' className='w-10 h-10 rounded-lg object-cover bg-[var(--sunken)]' />
@@ -56,7 +56,7 @@ function Overview () {
   )
 }
 
-const TABS = [['overview', 'Overview'], ['certs', 'Certificates'], ['gallery', 'Gallery'], ['projects', 'Projects'], ['team', 'Team'], ['members', 'Members'], ['settings', 'Social links + links'], ['admins', 'Admins']]
+const TABS = [['overview', 'Overview'], ['certs', 'Certificates'], ['gallery', 'Gallery'], ['projects', 'Projects'], ['team', 'Team'], ['members', 'Members'], ['settings', 'Social links'], ['links', 'Links'], ['admins', 'Admins']]
 
 export default function Admin () {
   const { user, verifyLoading } = useAuthStore()
@@ -89,7 +89,7 @@ export default function Admin () {
         ))}
       </div>
 
-      {tab === 'overview' ? <Overview /> : tab === 'certs' ? <Certificates /> : tab === 'gallery' ? <AdminGallery /> : tab === 'settings' ? <AdminSettings /> : tab === 'team' ? <AdminTeam /> : tab === 'members' ? <AdminMembers /> : tab === 'admins' ? <AdminAdmins /> : <ResourceManager key={tab} config={CONFIGS[tab]} />}
+      {tab === 'overview' ? <Overview /> : tab === 'certs' ? <Certificates /> : tab === 'gallery' ? <AdminGallery /> : tab === 'settings' ? <AdminSettings /> : tab === 'links' ? <AdminLinks /> : tab === 'team' ? <AdminTeam /> : tab === 'members' ? <AdminMembers /> : tab === 'admins' ? <AdminAdmins /> : <ResourceManager key={tab} config={CONFIGS[tab]} />}
     </div>
   )
 }

@@ -11,6 +11,7 @@ const SettingsSchema = mongoose.Schema({
         title: { type: String, trim: true, maxlength: 80 },
         url: { type: String, trim: true, maxlength: 500 },
         description: { type: String, trim: true, maxlength: 160 },
+        image: { type: String, trim: true, maxlength: 500 },
         order: { type: Number, default: 0 },
     }],
 });

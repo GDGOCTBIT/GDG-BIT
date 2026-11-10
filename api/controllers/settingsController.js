@@ -31,7 +31,7 @@ const members = async (doc) => {
 const links = (doc) => (doc.importantLinks || [])
     .filter((link) => link.title && link.url)
     .sort((a, b) => a.order - b.order)
-    .map((link) => ({ _id: String(link._id), title: link.title, url: link.url, description: link.description || '' }));
+    .map((link) => ({ _id: String(link._id), title: link.title, url: link.url, description: link.description || '', image: link.image || '' }));
 
 // Public: only links that have a URL.
 exports.publicSettings = async (req, res) => {
@@ -82,11 +82,14 @@ exports.saveSettings = async (req, res) => {
                 const title = String(raw?.title || '').trim().slice(0, 80);
                 const description = String(raw?.description || '').trim().slice(0, 160);
                 const value = String(raw?.url || '').trim();
-                if (!title && !value && !description) continue;
+                const imageValue = String(raw?.image || '').trim();
+                if (!title && !value && !description && !imageValue) continue;
                 if (!title || !value) return res.status(400).json({ success: false, msg: 'Every important link needs a title and URL.' });
                 const url = cleanUrl(value);
                 if (!url || /^mailto:/i.test(url)) return res.status(400).json({ success: false, msg: `Important link ${index + 1}: add a valid web URL.` });
-                next.push({ title, url, description, order: index });
+                const image = imageValue ? cleanUrl(imageValue) : '';
+                if (image === null || /^mailto:/i.test(image)) return res.status(400).json({ success: false, msg: `Important link ${index + 1}: add a valid image URL.` });
+                next.push({ title, url, description, image, order: index });
             }
             doc.importantLinks = next;
         }
