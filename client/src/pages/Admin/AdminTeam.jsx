@@ -59,7 +59,7 @@ export default function AdminTeam () {
               {shown.map(m => (
                 <tr key={m.key}>
                   <td><img src={m.image?.url || '/user.svg'} alt='' className='w-10 h-10 rounded-lg object-cover bg-[var(--sunken)]' /></td>
-                  <td>{m.name}{Object.keys(m.override || {}).some(k => m.override[k]) && <span className='pill pill-blue ml-2'>edited</span>}</td>
+                  <td>{m.name}</td>
                   <td>{m.role}</td>
                   <td>{LINKS.filter(([k]) => m[k]).map(([, l]) => l).join(', ') || '—'}</td>
                   <td>{m.userEmail || '—'}</td>
