@@ -1,12 +1,16 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react' //removed swc
 import { visualizer } from 'rollup-plugin-visualizer'
+import { fileURLToPath, URL } from 'node:url'
 
 // `ANALYZE=1 npm run build` writes dist-stats.html (treemap) + dist-stats.json so the bundle can be audited.
 const analyze = process.env.ANALYZE === '1'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  resolve: {
+    alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) }
+  },
   plugins: [react(), analyze && visualizer({ filename: 'dist-stats.html', template: 'treemap', gzipSize: true }), analyze && visualizer({ filename: 'dist-stats.json', template: 'raw-data', gzipSize: true })].filter(Boolean),
   server: {
     headers: {

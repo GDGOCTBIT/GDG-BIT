@@ -1,0 +1,3 @@
+# Keep the frontend utility folder despite the root Python lib/ ignore.
+!src/lib/
+!src/lib/**
