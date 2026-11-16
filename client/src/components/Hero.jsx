@@ -5,6 +5,7 @@ import { formatDate } from '../utils/api'
 import useGallery from '../utils/useGallery'
 import { Live } from './HeroParts'
 import InteractiveGlobe from './InteractiveGlobe'
+import Magnet from './ui/magnet'
 
 const WORDS = [['learn', 'var(--blue)'], ['build', 'var(--red)'], ['ship', 'var(--yellow)'], ['grow', 'var(--green)']]
 
@@ -89,6 +90,7 @@ function PosterStack () {
   const posters = mixImages(items)
 
   const move = e => {
+    if (e.pointerType === 'touch' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     const r = box.current.getBoundingClientRect()
     box.current.style.setProperty('--mx', (((e.clientX - r.left) / r.width) * 2 - 1).toFixed(3))
     box.current.style.setProperty('--my', (((e.clientY - r.top) / r.height) * 2 - 1).toFixed(3))
@@ -108,8 +110,8 @@ function PosterStack () {
         const p = posters[i]
         const style = { left: `${s.x}%`, top: `${s.y}%`, width: `${s.w}%`, '--rot': `${s.rot}deg`, '--depth': s.depth, zIndex: s.z }
         const inner = p
-          ? <img src={p.thumb} alt={p.title} width='480' height='480' className='w-full h-full object-cover' loading={i < 2 ? 'eager' : 'lazy'} fetchpriority={i === 0 ? 'high' : 'auto'} decoding='async' draggable={false} />
-          : <div className='w-full h-full' style={{ background: FALLBACK[i] }} />
+          ? <img src={p.thumb} alt={p.title} width='480' height='480' className='w-full h-full object-cover' loading={i < 2 ? 'eager' : 'lazy'} fetchPriority={i === 0 ? 'high' : 'auto'} decoding='async' draggable={false} />
+          : <div className='creative-poster-fallback' style={{ background: FALLBACK[i] }}><span className='mono'>{['01 / EXPLORE', '02 / CREATE', '03 / CONNECT', '04 / GROW'][i]}</span><strong>{['Hello,\nworld.', 'Make it\nhappen.', 'Find your\npeople.', 'Build what’s\nnext.'][i]}</strong><span className='mono'>GDG ON CAMPUS BIT ↗</span></div>
         return (
           <div key={i} className='stack-card' style={style}>
             <div className={`${i % 2 ? 'float-y' : 'float-r'}`} style={{ '--d': `${i * -1.3}s`, '--r2': `${s.rot > 0 ? 2 : -2}deg` }}>
@@ -160,7 +162,7 @@ export default function Hero ({ events, team, members }) {
   const nextDays = next && next.status === 'upcoming' ? daysUntil(next.startDate) : null
 
   return (
-    <section className='wrap page-top pb-4'>
+    <section className='wrap page-top pb-4 creative-hero'>
       <div className='grid grid-cols-1 lg:grid-cols-[1.12fr_1fr] gap-8 lg:gap-6 items-center lg:hero-min pt-4 sm:pt-8'>
         <div className='relative flex flex-col gap-5 sm:gap-6 min-w-0'>
           <div className='ambient' aria-hidden='true' />
@@ -171,28 +173,27 @@ export default function Hero ({ events, team, members }) {
           </div>
 
           {/* headline + floating glass badges (absolute around the headline on large screens, a tidy row on phones) */}
-          <div className='relative rise lg:mb-8' style={{ '--d': '0.04s' }}>
-            <h1 className='title-display'>
-              Where student developers <RotatingWord />{' '}
-              <b>together.</b>
+          <div className='relative rise' style={{ '--d': '0.04s' }}>
+            <h1 className='title-display creative-hero-title'>
+              Small ideas.<br /><b>Big possibilities.</b><br /><span className='creative-hero-last'>Let’s <RotatingWord /> together.</span>
             </h1>
             <div className='badge-cloud mt-5 lg:mt-0' aria-label='Community stats'>
               {/* always rendered (with a placeholder until the numbers arrive) so nothing jumps when data loads */}
-              <span className='glass-badge float-badge lg:left-[74%] lg:top-[calc(var(--u)*0.02)]' style={{ '--r': '-6deg', '--d': '0s' }}>
+              <span className='glass-badge float-badge' style={{ '--r': '-6deg', '--d': '0s' }}>
                 <Live keep /><b className='font-medium inline-block min-w-[3.2ch] text-center'>{members > 0 ? members.toLocaleString('en-IN') : '—'}</b> members
               </span>
-              <span className='glass-badge float-badge lg:left-[51%] lg:top-[calc(var(--u)*2.25)]' style={{ '--r': '3deg', '--d': '-1.7s' }}>
+              <span className='glass-badge float-badge' style={{ '--r': '3deg', '--d': '-1.7s' }}>
                 <b className='font-medium inline-block min-w-[2ch] text-center'>{events.length > 0 ? events.length : '—'}</b> events
               </span>
-              <span className='glass-badge float-badge lg:left-[69%] lg:top-[calc(var(--u)*2.6)]' style={{ '--r': '-4deg', '--d': '-3.1s' }}>
+              <span className='glass-badge float-badge' style={{ '--r': '-4deg', '--d': '-3.1s' }}>
                 <b className='font-medium inline-block min-w-[1.5ch] text-center'>{team > 0 ? team : '—'}</b> organizers
               </span>
               {nextDays != null && (
-                <span className='glass-badge float-badge max-lg:hidden lg:left-[58%] lg:top-[calc(var(--u)*3.25)]' style={{ '--r': '-3deg', '--d': '-2.2s' }}>
+                <span className='glass-badge float-badge max-lg:hidden' style={{ '--r': '-3deg', '--d': '-2.2s' }}>
                   <Live />Next: {short(next.title)} · {nextDays === 0 ? 'today' : `in ${nextDays}d`}
                 </span>
               )}
-              <span className='glass-badge float-badge lg:left-[28%] lg:top-[calc(var(--u)*3.1)]' style={{ '--r': '3deg', '--d': '-0.8s' }}>#GDGOnCampus</span>
+              <span className='glass-badge float-badge' style={{ '--r': '3deg', '--d': '-0.8s' }}>#GDGOnCampus</span>
             </div>
           </div>
 
@@ -201,14 +202,14 @@ export default function Hero ({ events, team, members }) {
           </p>
 
           <div className='flex flex-wrap items-center gap-3 rise' style={{ '--d': '0.34s' }}>
-            <a href={COMMUNITY_URL} target='_blank' rel='noreferrer' className='btn btn-ink btn-beam !min-h-12 !px-7 !text-base'>Join the community</a>
+            <Magnet padding={45} magnetStrength={5} maxOffset={9}><a href={COMMUNITY_URL} target='_blank' rel='noreferrer' className='btn btn-ink btn-beam !min-h-12 !px-7 !text-base'>Join the community <Arrow width={26} /></a></Magnet>
             <Link to='/events' className='btn btn-ghost btn-beam !min-h-12 !px-6 !text-base'>Explore events <Arrow width={26} /></Link>
           </div>
 
           <div className='rise min-h-[4.5rem] sm:min-h-[4rem]' style={{ '--d': '0.5s' }}>{next && <Countdown event={next} />}</div>
         </div>
 
-        <div className='rise' style={{ '--d': '0.2s' }}><PosterStack /></div>
+        <div className='rise creative-hero-visual' style={{ '--d': '0.2s' }}><PosterStack /><p className='creative-hero-note'>A little curiosity. A lot of possibility.</p></div>
       </div>
     </section>
   )
